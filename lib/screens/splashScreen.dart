@@ -12,7 +12,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 5), () {
       // Navigate to Home Screen
       Get.off(() => StoryScreen()); // Use GetX or Navigator.pushReplacement
     });
@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lottie.asset(
-              'assets/animations/agriculture.json', // Replace with your Lottie animation file
+              'assets/animations/crop.json', // Replace with your Lottie animation file
               width: 250,
               height: 250,
               fit: BoxFit.cover,
