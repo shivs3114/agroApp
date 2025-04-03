@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:agro/controller/cropController.dart';
@@ -96,7 +97,8 @@ class _StoryScreenState extends State<StoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(onPressed:(){},child: Icon(Icons.message),),
+      floatingActionButton: FloatingActionButton(
+        onPressed:(){},child: Icon(Icons.message),),
       appBar: AppBar(
         title: Text("Plantix", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
@@ -118,8 +120,10 @@ class _StoryScreenState extends State<StoryScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 for(int i=0;i<9;i++)CropIcon(imagePath: "assets/potato.png"),
-                CropIcon(imagePath: "assets/corn.png"),
-                CropIcon(imagePath: "assets/wheat.png"),
+              CircleAvatar(backgroundColor: Colors.blue,
+            
+                child: IconButton(onPressed: (){}, icon:Icon(Icons.add)))
+
               ],
             ),
             SizedBox(height: 16),
@@ -193,10 +197,29 @@ class _StoryScreenState extends State<StoryScreen> {
                 ],
               ),
             ),
-          
-        
-      
-           
+            SizedBox(height: 10,),
+          Text("Crop Health", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), 
+          SizedBox(height: 10,),
+      Container(
+           padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12)),
+        child: Column(children: [
+         
+          SizedBox(height: 10),
+          Container(
+            padding: EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(onPressed: (){},
+              
+               child: Text("Check Crop Health", style: TextStyle(fontSize: 16),)),
+            ),
+          )
+        ],),
+      ),
+          SizedBox(height: 10,),   
       Expanded( // Ensures GridView takes available space
             child: Obx(() => GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
