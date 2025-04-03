@@ -74,8 +74,7 @@ class StoryScreen extends StatefulWidget {
 
 class _StoryScreenState extends State<StoryScreen> {
   // Sample user data (Replace with real images & names)
-  final List<String> userImages = List.generate(
-      10, (index) => "https://source.unsplash.com/100x100/?face$index");
+ 
 
   final List<String> userNames = List.generate(10, (index) => "User $index");
      CropController cropController = Get.put(CropController());
@@ -118,7 +117,7 @@ class _StoryScreenState extends State<StoryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                CropIcon(imagePath: "assets/potato.png"),
+                for(int i=0;i<9;i++)CropIcon(imagePath: "assets/potato.png"),
                 CropIcon(imagePath: "assets/corn.png"),
                 CropIcon(imagePath: "assets/wheat.png"),
               ],
