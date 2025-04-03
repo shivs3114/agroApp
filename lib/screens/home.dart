@@ -1,9 +1,71 @@
 import 'dart:io';
 
 import 'package:agro/controller/cropController.dart';
+import 'package:agro/screens/profileScreen.dart';
+import 'package:agro/screens/searchScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+
+
+class BottomNavScreen extends StatefulWidget {
+  @override
+  _BottomNavScreenState createState() => _BottomNavScreenState();
+}
+
+class _BottomNavScreenState extends State<BottomNavScreen> {
+  int _selectedIndex = 0;
+
+  // List of pages for navigation
+  final List<Widget> _pages = [
+    StoryScreen(),
+    SearchScreen(),
+    ProfileScreen(),
+    SettingsScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+class SettingsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text('Settings Screen', style: TextStyle(fontSize: 24)));
+  }
+}
 
 class StoryScreen extends StatefulWidget {
   @override
@@ -35,80 +97,108 @@ class _StoryScreenState extends State<StoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text("Stories"), backgroundColor: Colors.green),
-      body: Column(
-        children: [
-          Container(
-            height: 110, // Set height to fit the stories
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: userImages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Column(
+      floatingActionButton: FloatingActionButton(onPressed:(){},child: Icon(Icons.message),),
+      appBar: AppBar(
+        title: Text("Plantix", style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert, color: Colors.black),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Crop Icons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CropIcon(imagePath: "assets/potato.png"),
+                CropIcon(imagePath: "assets/corn.png"),
+                CropIcon(imagePath: "assets/wheat.png"),
+              ],
+            ),
+            SizedBox(height: 16),
+      
+            // Weather Info
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(3), // Border effect
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [Colors.orange, Colors.pink, Colors.red],
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 35, // Story size
-                          backgroundColor: Colors.white,
-                          child: CircleAvatar(
-                            radius: 32,
-                            backgroundImage: NetworkImage(userImages[index]),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        userNames[index],
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      Text("Churk, 3 Apr", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text("Clear • 23°C / 36°C", style: TextStyle(fontSize: 14, color: Colors.grey)),
                     ],
                   ),
-                );
-              },
+                  Row(
+                    children: [
+                      Text("26°C", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      SizedBox(width: 5),
+                      Icon(Icons.nightlight_round, color: Colors.blue),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Container(
-  decoration: BoxDecoration(
-    color: Colors.white, // Outer container remains white
-    border: Border.all(color: Colors.grey, width: 1),
-    borderRadius: BorderRadius.circular(10),
-  ),
-  height: Get.height / 4,
-  child: Center(
-    child: Container(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12), // Padding around text
-      decoration: BoxDecoration(
-        color: Colors.blue, // Blue background only for text
-        borderRadius: BorderRadius.circular(8), // Rounded corners
-      ),
-      child: InkWell(
-        onTap: _pickImage,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.image, color: Colors.white), // White icon
-            SizedBox(width: 8), // Space between icon and text
-            Text(
-              'Take a Picture',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            SizedBox(height: 16),
+      
+            // Heal Your Crop Section
+            Text("Heal your crop", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      
+            SizedBox(height: 10),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CropProcessStep(icon: Icons.camera_alt, text: "Take a picture"),
+                      Icon(Icons.arrow_forward, color: Colors.black54),
+                      CropProcessStep(icon: Icons.description, text: "See diagnosis"),
+                      Icon(Icons.arrow_forward, color: Colors.black54),
+                      CropProcessStep(icon: Icons.medical_services, text: "Get medicine"),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () {
+                        // Handle Picture Capture
+                      },
+                      child: Text("Take a picture", style: TextStyle(fontSize: 16, color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
-    ),
-  ),
-),
-Expanded( // Ensures GridView takes available space
+          
+        
+      
+           
+      Expanded( // Ensures GridView takes available space
             child: Obx(() => GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -143,9 +233,43 @@ Expanded( // Ensures GridView takes available space
                   },
                 )),
           ),
+          
+      
+        ]))
+    );
+      
+    
+  }}
 
-        ],
-      ),
+  class CropIcon extends StatelessWidget {
+  final String imagePath;
+
+  CropIcon({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 30,
+      backgroundColor: Colors.white,
+      child: Image.asset(imagePath, height: 40),
     );
   }
 }
+  class CropProcessStep extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  CropProcessStep({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, size: 30, color: Colors.green),
+        SizedBox(height: 4),
+        Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+}
+

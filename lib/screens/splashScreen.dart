@@ -14,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Future.delayed(Duration(seconds: 5), () {
       // Navigate to Home Screen
-      Get.off(() => StoryScreen()); // Use GetX or Navigator.pushReplacement
+      Get.off(() => BottomNavScreen()); // Use GetX or Navigator.pushReplacement
     });
   }
 
