@@ -1,12 +1,14 @@
-import 'dart:ffi';
-import 'dart:io';
-
 import 'package:agro/controller/cropController.dart';
-import 'package:agro/screens/profileScreen.dart';
+import 'package:agro/controller/profileController.dart';
+import 'package:agro/controller/speech_controller.dart';
+
 import 'package:agro/screens/searchScreen.dart';
+import 'package:agro/tflite/image_processor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:glow_container/glow_container.dart';
+
+
 
 
 class BottomNavScreen extends StatefulWidget {
@@ -21,7 +23,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   final List<Widget> _pages = [
     StoryScreen(),
     SearchScreen(),
-    ProfileScreen(),
+  ProfilePage(),
     SettingsScreen(),
   ];
 
@@ -58,6 +60,79 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 
 
 
+class ProfilePage extends StatelessWidget {
+  final ProfileController controller = Get.put(ProfileController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Center(child: Text("Update Profile")),
+        backgroundColor: Color.fromARGB(255, 62, 191, 55),
+      ),
+      body: SafeArea(
+        child: Obx(() => controller.isLoading.value
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+CircleAvatar(
+  radius: 80,
+  child: Icon(Icons.person,size: 50,),),
+  SizedBox(height: 16),
+
+                    TextField(
+                      controller: controller.nameController,
+                      decoration: InputDecoration(
+                        labelText: "Name",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: controller.emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: controller.phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: "Phone",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: controller.updateProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 84, 174, 101),
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          "Update Profile",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+      ),
+    );
+  }
+}
+
 
 
 
@@ -74,31 +149,16 @@ class StoryScreen extends StatefulWidget {
 }
 
 class _StoryScreenState extends State<StoryScreen> {
-  // Sample user data (Replace with real images & names)
- 
+  final CustomImageProcessor processor = CustomImageProcessor();
 
-  final List<String> userNames = List.generate(10, (index) => "User $index");
-     CropController cropController = Get.put(CropController());
 
-  File? _image;
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
+  CropController cropController = Get.put(CropController());
+  final SpeechController controller = Get.put(SpeechController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        onPressed:(){},child: Icon(Icons.message),),
       appBar: AppBar(
         title: Text("Plantix", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
@@ -110,188 +170,47 @@ class _StoryScreenState extends State<StoryScreen> {
           ),
         ],
       ),
-      body: Padding(
+      floatingActionButton:Obx(() => FloatingActionButton(
+        backgroundColor: Colors.green,
+        onPressed: controller.listen,
+        child: Icon(
+          controller.isListening.value ? Icons.mic : Icons.mic_none,
+        ),)),
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Crop Icons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for(int i=0;i<9;i++)CropIcon(imagePath: "assets/potato.png"),
-              CircleAvatar(backgroundColor: Colors.blue,
-            
-                child: IconButton(onPressed: (){}, icon:Icon(Icons.add)))
-
-              ],
-            ),
-            SizedBox(height: 16),
-      
-            // Weather Info
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Churk, 3 Apr", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text("Clear • 23°C / 36°C", style: TextStyle(fontSize: 14, color: Colors.grey)),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text("26°C", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      SizedBox(width: 5),
-                      Icon(Icons.nightlight_round, color: Colors.blue),
-                    ],
-                  ),
-                ],
+            Center(
+              child: Container(
+                height: Get.height*0.4,
+                width: Get.width*0.8,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.green[300]
+                ),
+                child: GlowContainer(
+                  gradientColors: [Colors.yellow,Colors.orange],
+                  glowRadius: 5,
+                  containerOptions: ContainerOptions(borderRadius: 20,),
+                  child: Obx(() => Center(
+                    child: Text(
+                              controller.spokenText.value.isEmpty
+                      ? 'Tap mic to speak'
+                      : controller.spokenText.value,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                  )),
+                ),
               ),
             ),
-            SizedBox(height: 16),
-      
-            // Heal Your Crop Section
-            Text("Heal your crop", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      
-            SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CropProcessStep(icon: Icons.camera_alt, text: "Take a picture"),
-                      Icon(Icons.arrow_forward, color: Colors.black54),
-                      CropProcessStep(icon: Icons.description, text: "See diagnosis"),
-                      Icon(Icons.arrow_forward, color: Colors.black54),
-                      CropProcessStep(icon: Icons.medical_services, text: "Get medicine"),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () {
-                        // Handle Picture Capture
-                      },
-                      child: Text("Take a picture", style: TextStyle(fontSize: 16, color: Colors.white)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 10,),
-          Text("Crop Health", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), 
-          SizedBox(height: 10,),
-      Container(
-           padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12)),
-        child: Column(children: [
-         
-          SizedBox(height: 10),
-          Container(
-            padding: EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(onPressed: (){},
-              
-               child: Text("Check Crop Health", style: TextStyle(fontSize: 16),)),
-            ),
-          )
-        ],),
+            SizedBox(height: Get.height*0.1,),
+           ElevatedButton(onPressed:(){}, child:Text('Diagnose this Problem'))
+          ],
+        ),
       ),
-          SizedBox(height: 10,),   
-      Expanded( // Ensures GridView takes available space
-            child: Obx(() => GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1.2,
-                  ),
-                  itemCount: cropController.items.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("${cropController.items[index]} tapped!")),
-                        );
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          cropController.items[index],
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                )),
-          ),
-          
-      
-        ]))
-    );
-      
-    
-  }}
-
-  class CropIcon extends StatelessWidget {
-  final String imagePath;
-
-  CropIcon({required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 30,
-      backgroundColor: Colors.white,
-      child: Image.asset(imagePath, height: 40),
     );
   }
 }
-  class CropProcessStep extends StatelessWidget {
-  final IconData icon;
-  final String text;
-
-  CropProcessStep({required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, size: 30, color: Colors.green),
-        SizedBox(height: 4),
-        Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 12)),
-      ],
-    );
-  }
-}
-
